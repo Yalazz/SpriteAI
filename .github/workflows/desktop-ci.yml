@@ -1,0 +1,36 @@
+name: SpriteAI Desktop CI
+
+on:
+  push:
+    paths:
+      - "spriteai-desktop/**"
+      - ".github/workflows/desktop-ci.yml"
+  pull_request:
+    paths:
+      - "spriteai-desktop/**"
+      - ".github/workflows/desktop-ci.yml"
+
+jobs:
+  build-desktop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Ubuntu)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build libx11-dev libxkbcommon-x11-0
+          # Qt ve Vulkan SDK için ortamınıza göre ek kurulum gerekecek.
+
+      - name: Configure CMake
+        working-directory: spriteai-desktop
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -G Ninja
+
+      - name: Build
+        working-directory: spriteai-desktop/build
+        run: ninja

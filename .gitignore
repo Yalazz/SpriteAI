@@ -1,0 +1,40 @@
+# C/C++ / CMake
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.obj
+*.pdb
+*.exe
+*.dll
+*.so
+*.dylib
+*.app
+*.log
+
+# Qt
+*.pro.user
+*.qbs.user
+*.qmlproject.user
+
+# Java / Maven
+target/
+*.iml
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node (ileride kullanılırsa)
+node_modules/
+
+# Docker
+*.pid
+docker-data/
+
+# OS
+.DS_Store
+Thumbs.db
