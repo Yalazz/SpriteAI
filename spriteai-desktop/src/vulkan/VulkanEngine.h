@@ -8,9 +8,11 @@ public:
     VulkanEngine();
     ~VulkanEngine();
 
+    // Vulkan’ı başlat / kapat
     void initialize();
     void shutdown();
 
+    // Editor tarafında durum kontrolü için
     bool isInitialized() const { return m_initialized; }
 
 private:
@@ -19,6 +21,7 @@ private:
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
     VkDevice         m_device         = VK_NULL_HANDLE;
 
+    // İç fonksiyonlar
     void createInstance();
     void selectPhysicalDevice();
     void createLogicalDevice();

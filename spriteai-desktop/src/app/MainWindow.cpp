@@ -1,16 +1,13 @@
 #include "MainWindow.h"
 #include "StatusBarController.h"
-#include "../vulkan/VulkanEngine.h"
+#include "vulkan/VulkanEngine.h"
 
-#include <QStatusBar>
 #include <QVBoxLayout>
-#include <QWidget>
 #include <QLabel>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , m_statusBarController(new StatusBarController(this))
-    , m_vulkanEngine(new VulkanEngine())
 {
     initializeUi();
     initializeVulkan();
@@ -18,42 +15,42 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    delete m_vulkanEngine;
-    m_vulkanEngine = nullptr;
+    if (m_vulkanEngine) {
+        m_vulkanEngine->shutdown();
+        delete m_vulkanEngine;
+    }
+    delete m_statusBarController;
 }
 
 void MainWindow::initializeUi()
 {
-    auto* centralWidget = new QWidget(this);
-    auto* layout = new QVBoxLayout(centralWidget);
-    layout->setContentsMargins(16, 16, 16, 16);
+    auto* central = new QWidget(this);
+    auto* layout = new QVBoxLayout(central);
 
-    auto* infoLabel = new QLabel(
-        "Sprite AI - Desktop Editor Skeleton\n\n"
-        "Bu iskelet, Sprite AI masaüstü editörünün başlangıç noktasıdır.\n"
-        "VulkanEngine şu anda yalnızca Vulkan instance ve device oluşturur.\n"
-        "Bir sonraki adımda swapchain, render pass ve gerçek canvas eklenecektir.",
-        centralWidget
-    );
-    infoLabel->setWordWrap(true);
+    auto* label = new QLabel("Sprite AI Desktop — Vulkan Test", this);
+    layout->addWidget(label);
 
-    layout->addWidget(infoLabel);
-    setCentralWidget(centralWidget);
+    setCentralWidget(central);
 
-    resize(960, 640);
-    setWindowTitle("Sprite AI - Vulkan Desktop Editor");
-
-    setStatusBar(new QStatusBar(this));
+    // 🔥 StatusBarController doğru şekilde bağlanıyor
+    m_statusBarController = new StatusBarController(this);
     m_statusBarController->attach(statusBar());
     m_statusBarController->showStartupMessage();
 }
 
 void MainWindow::initializeVulkan()
 {
-    try {
+    try
+    {
+        m_vulkanEngine = new VulkanEngine();
         m_vulkanEngine->initialize();
+
         m_statusBarController->showInfo("Vulkan başarıyla başlatıldı.");
-    } catch (const std::exception& ex) {
-        m_statusBarController->showError(QString("Vulkan başlatma hatası: %1").arg(ex.what()));
+    }
+    catch (const std::exception& e)
+    {
+        QString err = QString("Vulkan hata: %1").arg(e.what());
+        m_statusBarController->showError(err);
+        std::cerr << err.toStdString() << std::endl;
     }
 }

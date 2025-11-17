@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
 
 class QStatusBar;
 
@@ -12,6 +13,7 @@ public:
     explicit StatusBarController(QObject* parent = nullptr);
 
     void attach(QStatusBar* statusBar);
+
     void showStartupMessage();
     void showInfo(const QString& message);
     void showError(const QString& message);

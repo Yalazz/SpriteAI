@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+    <key>CFBundleExecutable</key>
+    <string>spriteai-desktop</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.spriteai.desktop</string>
+    <key>CFBundleName</key>
+    <string>Sprite AI</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <!-- Vulkan environment fix -->
+    <key>LSEnvironment</key>
+    <dict>
+        <key>VK_ICD_FILENAMES</key>
+        <string>/Users/emrebilici/VulkanSDK/1.4.328.1/macOS/share/vulkan/icd.d/MoltenVK_icd.json</string>
+
+        <key>VULKAN_SDK</key>
+        <string>/Users/emrebilici/VulkanSDK/1.4.328.1</string>
+    </dict>
+</dict>
+</plist>
