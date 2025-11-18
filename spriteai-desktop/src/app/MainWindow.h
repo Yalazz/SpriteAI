@@ -2,8 +2,7 @@
 
 #include <QMainWindow>
 
-class StatusBarController;
-class VulkanEngine;
+class CanvasWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -11,12 +10,8 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);
-    ~MainWindow() override;
+    ~MainWindow();
 
 private:
-    StatusBarController* m_statusBarController = nullptr;
-    VulkanEngine*        m_vulkanEngine        = nullptr;
-
-    void initializeUi();
-    void initializeVulkan();
+    CanvasWidget* m_canvas = nullptr;
 };
