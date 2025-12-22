@@ -1,4 +1,4 @@
-#include "VulkanWindow.h"
+#include "../VulkanWindow.h"
 #include "engine/EngineContext.h"
 
 #include <QPainter>

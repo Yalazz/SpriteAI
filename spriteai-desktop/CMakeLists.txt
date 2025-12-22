@@ -29,46 +29,46 @@ qt_standard_project_setup()
 set(SPRITEAI_SOURCES
 
         # Entry + MainWindow
-        src/app/main.cpp
-        src/app/MainWindow.cpp
-        src/app/MainWindow.h
+        src/app/.cpp/main.cpp
+        src/app/.cpp/MainWindow.cpp
+        src/app/.h/MainWindow.h
 
         # Infinite Canvas (CPU)
-        src/app/CanvasWidget.cpp
-        src/app/CanvasWidget.h
-        src/canvas/CpuCanvasRenderer.cpp
-        src/canvas/CpuCanvasRenderer.h
+        src/app/.cpp/CanvasWidget.cpp
+        src/app/.h/CanvasWidget.h
+        src/canvas/.cpp/CpuCanvasRenderer.cpp
+        src/canvas/.h/CpuCanvasRenderer.h
 
         # (ICanvasRenderer şu an kullanılmıyor, istersen silebilirsin)
         # src/canvas/ICanvasRenderer.h
 
         # Engine
-        src/engine/EngineContext.cpp
-        src/engine/EngineContext.h
-        src/engine/Renderer.cpp
-        src/engine/Renderer.h
+        src/engine/.cpp/EngineContext.cpp
+        src/engine/.h/EngineContext.h
+        src/engine/.cpp/Renderer.cpp
+        src/engine/.h/Renderer.h
 
         # Vulkan (Temel – henüz kullanılmıyor)
-        src/vulkan/VulkanContext.cpp
-        src/vulkan/VulkanContext.h
-        src/vulkan/VulkanDevice.cpp
-        src/vulkan/VulkanDevice.h
-        src/vulkan/VulkanSurface.cpp
-        src/vulkan/VulkanSurface.h
-        src/vulkan/VulkanSwapchain.cpp
-        src/vulkan/VulkanSwapchain.h
-        src/vulkan/VulkanRenderPass.cpp
-        src/vulkan/VulkanRenderPass.h
-        src/vulkan/VulkanCommandPool.cpp
-        src/vulkan/VulkanCommandPool.h
-        src/canvas/CanvasLayer.cpp
-        src/canvas/CanvasLayer.h
-        src/canvas/CanvasManager.cpp
-        src/canvas/CanvasManager.h
-        src/canvas/InfiniteGridRenderer.cpp
-        src/canvas/InfiniteGridRenderer.h
-        src/canvas/CanvasState.cpp
-        src/canvas/CanvasState.h
+        src/vulkan/.cpp/VulkanContext.cpp
+        src/vulkan/.h/VulkanContext.h
+        src/vulkan/.cpp/VulkanDevice.cpp
+        src/vulkan/.h/VulkanDevice.h
+        src/vulkan/.cpp/VulkanSurface.cpp
+        src/vulkan/.h/VulkanSurface.h
+        src/vulkan/.cpp/VulkanSwapchain.cpp
+        src/vulkan/.h/VulkanSwapchain.h
+        src/vulkan/.cpp/VulkanRenderPass.cpp
+        src/vulkan/.h/VulkanRenderPass.h
+        src/vulkan/.cpp/VulkanCommandPool.cpp
+        src/vulkan/.h/VulkanCommandPool.h
+        src/canvas/.cpp/CanvasLayer.cpp
+        src/canvas/.h/CanvasLayer.h
+        src/canvas/.cpp/CanvasManager.cpp
+        src/canvas/.h/CanvasManager.h
+        src/canvas/.cpp/InfiniteGridRenderer.cpp
+        src/canvas/.h/InfiniteGridRenderer.h
+        src/canvas/.cpp/CanvasState.cpp
+        src/canvas/.h/CanvasState.h
 
         # ⚠ GPU Canvas dosyaları şimdilik devre Dışı!
         # src/canvas/VulkanCanvasRenderer.cpp

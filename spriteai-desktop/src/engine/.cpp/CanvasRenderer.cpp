@@ -1,4 +1,4 @@
-#include "CanvasRenderer.h"
+#include "../CanvasRenderer.h"
 #include <QPainter>
 #include <QWidget>
 

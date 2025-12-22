@@ -1,4 +1,4 @@
-#include "InfiniteGridRenderer.h"
+#include "../.h/InfiniteGridRenderer.h"
 
 #include <QtMath>
 

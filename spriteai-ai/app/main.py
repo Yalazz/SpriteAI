@@ -21,7 +21,7 @@ async def health():
 
 @app.post("/api/ai/pixel/generate", response_model=PixelGenerateResponse)
 async def generate_pixel_art(request: PixelGenerateRequest):
-    # Buraya gerçek model entegrasyonu eklenecek.
+
     return PixelGenerateResponse(
         message=f"Model henüz bağlı değil. Prompt: '{request.prompt}', boyut: {request.width}x{request.height}"
     )

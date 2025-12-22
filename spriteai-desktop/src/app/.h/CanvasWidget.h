@@ -29,7 +29,7 @@ protected:
     void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
-    std::unique_ptr<CanvasManager>       manager;
+    std::unique_ptr<CanvasManager>        manager;
     std::unique_ptr<InfiniteGridRenderer> gridRenderer;
 
     bool    isDrawing  = false;

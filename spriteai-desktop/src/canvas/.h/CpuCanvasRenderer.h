@@ -1,31 +1,26 @@
 #pragma once
-
-#include "ICanvasRenderer.h"
-
+#include "../.h/ICanvasRenderer.h"
 #include <vector>
 
-struct StrokePoint
-{
+struct StrokePoint {
     QPointF pos;
-    float   pressure = 1.0f;
+    float pressure;
 };
 
 struct Stroke
 {
     QColor color;
-    float  width = 1.0f;
+    float width;
     std::vector<StrokePoint> points;
 };
 
 class CpuCanvasRenderer : public ICanvasRenderer
 {
 public:
-    CpuCanvasRenderer() = default;
+    CpuCanvasRenderer();
+    ~CpuCanvasRenderer() override;
 
-    void setCanvasSize(const QSize& size) override
-    {
-        canvasSize = size;
-    }
+    void setCanvasSize(const QSize& size) override;
 
     void beginStroke(const QPointF& worldPos,
                      const QColor& color,
@@ -36,17 +31,15 @@ public:
 
     void endStroke() override;
 
-    void clear(const QColor& /*color*/) override;
+    void clear(const QColor& color) override;
 
     void renderToPainter(QPainter& painter) override;
-
-    const std::vector<Stroke>& getStrokes() const { return strokes; }
-    const Stroke&              getCurrent() const { return current; }
 
 private:
     QSize canvasSize;
 
     std::vector<Stroke> strokes;
-    Stroke              current;
-    bool                drawing = false;
+    Stroke current;
+
+    bool drawing = false;
 };

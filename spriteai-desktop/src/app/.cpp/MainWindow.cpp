@@ -1,5 +1,5 @@
-#include "MainWindow.h"
-#include "CanvasWidget.h"
+#include "../.h/MainWindow.h"
+#include "../.h/CanvasWidget.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)

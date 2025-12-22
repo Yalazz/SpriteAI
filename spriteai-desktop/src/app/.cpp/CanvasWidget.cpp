@@ -1,14 +1,17 @@
-#include "CanvasWidget.h"
+#include "../.h/CanvasWidget.h"
 
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QKeyEvent>
+#include <QPainter>
 #include <QDebug>
+#include <QInputDialog>
+#include <QLineEdit>
 
-#include "../canvas/CanvasManager.h"
-#include "../canvas/CpuCanvasRenderer.h"
-#include "../canvas/InfiniteGridRenderer.h"
-#include "../canvas/CanvasState.h"
+#include "../../canvas/.h/CanvasManager.h"
+#include "../../canvas/.h/CpuCanvasRenderer.h"
+#include "../../canvas/.h/InfiniteGridRenderer.h"
+#include "../../canvas/.h/CanvasState.h"
 
 CanvasWidget::CanvasWidget(QWidget* parent)
     : QWidget(parent)
@@ -18,7 +21,7 @@ CanvasWidget::CanvasWidget(QWidget* parent)
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
 
-    // Şimdilik 3 ayrı canvas
+    // Başlangıç için 3 canvas
     manager->addCanvas("Canvas 1", std::make_unique<CpuCanvasRenderer>());
     manager->addCanvas("Canvas 2", std::make_unique<CpuCanvasRenderer>());
     manager->addCanvas("Canvas 3", std::make_unique<CpuCanvasRenderer>());
@@ -44,6 +47,7 @@ QPointF CanvasWidget::worldToScreen(const QPointF& p) const
 void CanvasWidget::updateCanvasSizes()
 {
     const QSize s = size();
+
     for (int i = 0; i < manager->canvasCount(); ++i)
     {
         if (auto* st = manager->canvasAt(i))
@@ -61,10 +65,10 @@ void CanvasWidget::paintEvent(QPaintEvent* /*event*/)
 
     CanvasState& S = manager->activeCanvas();
 
-    // GRID
+    // GRID (screen-space + camera/zoom bilgisi)
     gridRenderer->render(p, S.zoom, S.cameraOffset, size());
 
-    // STROKE’LAR (world-space -> transform ile)
+    // STROKE’LAR (world-space → transform ile)
     if (S.renderer)
     {
         p.save();
@@ -176,6 +180,7 @@ void CanvasWidget::wheelEvent(QWheelEvent* e)
 
 void CanvasWidget::keyPressEvent(QKeyEvent* e)
 {
+    // PAN MODE
     if (e->key() == Qt::Key_Space)
     {
         panMode = true;
@@ -183,15 +188,50 @@ void CanvasWidget::keyPressEvent(QKeyEvent* e)
             setCursor(Qt::OpenHandCursor);
     }
 
-    // 1 / 2 / 3 / 4 ile canvas değiştirme
-    if (e->key() == Qt::Key_1) manager->setActive(0);
-    if (e->key() == Qt::Key_2) manager->setActive(1);
-    if (e->key() == Qt::Key_3) manager->setActive(2);
-    if (e->key() == Qt::Key_4) manager->setActive(3);
+    // === DİNAMİK HOTKEY CANVAS SWITCH (1–9) ===
+    if (e->key() >= Qt::Key_1 && e->key() <= Qt::Key_9)
+    {
+        int index = e->key() - Qt::Key_1; // 0–8 arası
 
-    update();
+        if (index < manager->canvasCount())
+        {
+            manager->setActive(index);
+            update();
+            return;
+        }
+    }
+
+    // === B → Yeni canvas oluştur ===
+    if (e->key() == Qt::Key_B)
+    {
+        bool ok = false;
+        QString name = QInputDialog::getText(
+            this,
+            "Yeni Canvas",
+            "Canvas adı:",
+            QLineEdit::Normal,
+            "Untitled Canvas",
+            &ok
+        );
+
+        if (ok && !name.isEmpty())
+        {
+            int newIndex = manager->addCanvas(
+                name,
+                std::make_unique<CpuCanvasRenderer>()
+            );
+
+            manager->setActive(newIndex);
+            updateCanvasSizes();
+            update();
+
+            qDebug() << "Created new canvas:" << name << "index:" << newIndex;
+        }
+    }
+
     QWidget::keyPressEvent(e);
 }
+
 
 void CanvasWidget::keyReleaseEvent(QKeyEvent* e)
 {

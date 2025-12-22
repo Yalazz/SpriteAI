@@ -1,26 +1,21 @@
-#include "CanvasManager.h"
-
+#include "../.h/CanvasManager.h"
 #include <QDebug>
 
-CanvasManager::CanvasManager()
-{
-    qDebug() << "[CanvasManager] Initialized";
-}
+CanvasManager::CanvasManager() = default;
 
 int CanvasManager::addCanvas(const QString& name,
                              std::unique_ptr<ICanvasRenderer> renderer)
 {
-    CanvasState st;
-    st.name        = name;
-    st.renderer    = std::move(renderer);
-    st.zoom        = 1.0;
-    st.cameraOffset = QPointF(0.0, 0.0);
-
+    CanvasState st(name, std::move(renderer));
     canvases.push_back(std::move(st));
-    const int index = static_cast<int>(canvases.size()) - 1;
 
-    qDebug() << "[CanvasManager] Canvas added:" << name << "index:" << index;
-    return index;
+    int idx = static_cast<int>(canvases.size()) - 1;
+
+    if (idx == 0)
+        active = 0;
+
+    qDebug() << "[CanvasManager] addCanvas:" << name << "index:" << idx;
+    return idx;
 }
 
 void CanvasManager::removeCanvas(int index)
@@ -33,11 +28,24 @@ void CanvasManager::removeCanvas(int index)
     if (canvases.empty())
     {
         active = 0;
+        return;
     }
-    else if (active >= canvasCount())
-    {
+
+    if (active >= canvasCount())
         active = canvasCount() - 1;
-    }
+}
+
+CanvasState* CanvasManager::canvasAt(int index)
+{
+    if (index < 0 || index >= canvasCount())
+        return nullptr;
+
+    return &canvases[index];
+}
+
+CanvasState& CanvasManager::activeCanvas()
+{
+    return canvases[active];
 }
 
 void CanvasManager::setActive(int index)
