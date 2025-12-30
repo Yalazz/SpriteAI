@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/i18n">
+        <file>spriteai_tr.qm</file>
+        <file>spriteai_en.qm</file>
+    </qresource>
+</RCC>

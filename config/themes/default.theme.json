@@ -1,0 +1,18 @@
+{
+  "name": "Default Futuristic",
+  "version": 1,
+  "colors": {
+    "background": "#0B0F14",
+    "canvas": "#0E1621",
+    "gridMajor": "#2C3A4A",
+    "gridMinor": "#1E2A38",
+    "stroke": "#E8F1FF",
+    "guide": "#7FD1FF",
+    "symmetry": "#FF7FDB"
+  },
+  "ui": {
+    "radius": 12,
+    "spacing": 8,
+    "font": "Inter"
+  }
+}

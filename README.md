@@ -1,13 +1,12 @@
-# Sprite AI
+# Sprite AI (Engine-separated workspace)
 
-Sprite AI; Vulkan tabanlı, C++/Qt ile yazılmış, Windows/macOS/Linux üzerinde çalışan,
-AI destekli ve multiplayer özellikli bir grafik editörüdür.
+Generated: 2025-12-29
 
-Bu monorepo yapısında şunlar bulunmaktadır:
+Bu zip, **Unity/Unreal yaklaşımı** gibi **engine ayrı repo** olacak şekilde düzenlenmiş bir workspace içerir:
 
-- `spriteai-desktop/`  → C++20 + Qt6 + Vulkan masaüstü editör iskeleti
-- `spriteai-backend/`  → Spring Boot backend (PostgreSQL + Redis)
-- `spriteai-ai/`       → FastAPI tabanlı AI servisi
-- `spriteai-infra/`    → Docker Compose ile Postgres 17, pgAdmin, Redis, Backend, AI, Jenkins
+- `spriteai-engine/`  → çekirdek (Document/Tool/Command + Renderer API + Vulkan/CPU renderer)
+- `spriteai-editor-desktop/` → Qt Editor (UI, docking, i18n, input)
+- `spriteai-services/` → Backend + AI microservice
+- `spriteai-infra/` → Docker Compose (PostgreSQL, RabbitMQ, pgAdmin, Jenkins)
 
-Ayrıca `.github/workflows/` altında GitHub Actions CI iskeletleri bulunmaktadır.
+> Not: Engine kodu editor’dan **bağımsızdır**. Editor, engine’i submodule gibi kullanır (CMake `add_subdirectory` veya package).

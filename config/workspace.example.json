@@ -1,0 +1,24 @@
+{
+  "i18n": {
+    "default": "tr_TR",
+    "supported": [
+      "tr_TR",
+      "en_US"
+    ]
+  },
+  "services": {
+    "backendBaseUrl": "http://localhost:8080",
+    "aiBaseUrl": "http://localhost:8000"
+  },
+  "infra": {
+    "postgres": {
+      "host": "localhost",
+      "port": 5500,
+      "db": "spriteai"
+    },
+    "rabbitmq": {
+      "host": "localhost",
+      "port": 5672
+    }
+  }
+}

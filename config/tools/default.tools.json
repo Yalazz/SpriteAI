@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "activeTool": "brush",
+  "tools": [
+    {
+      "id": "brush",
+      "name": "Brush",
+      "type": "builtin.brush",
+      "settings": {
+        "size": 8,
+        "rgba": "#E8F1FF",
+        "spacing": 0.25
+      }
+    },
+    {
+      "id": "eraser",
+      "name": "Eraser",
+      "type": "builtin.eraser",
+      "settings": {
+        "size": 18
+      }
+    },
+    {
+      "id": "ai_clean",
+      "name": "AI Clean",
+      "type": "builtin.ai",
+      "settings": {
+        "endpoint": "http://localhost:8000/ai/stroke2stroke",
+        "mode": "clean"
+      }
+    }
+  ],
+  "shortcuts": {
+    "B": "brush",
+    "E": "eraser",
+    "A": "ai_clean"
+  }
+}
