@@ -21,6 +21,10 @@ target_link_libraries(spriteai_plugin_brush_plus
         Qt6::Core
 )
 
+# Set output directories for plugins
+# LIBRARY_OUTPUT_DIRECTORY is for .so/.dylib (Unix)
+# RUNTIME_OUTPUT_DIRECTORY is for .dll (Windows)
 set_target_properties(spriteai_plugin_brush_plus PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
 )

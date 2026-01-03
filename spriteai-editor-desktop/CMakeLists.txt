@@ -54,6 +54,43 @@ target_link_libraries(spriteai_editor_desktop PRIVATE
         Qt6::Network
 )
 
+# Platform-specific configurations
 if(APPLE)
     set_target_properties(spriteai_editor_desktop PROPERTIES MACOSX_BUNDLE TRUE)
+elseif(WIN32)
+    # WIN32_EXECUTABLE makes it a GUI application (no console window)
+    set_target_properties(spriteai_editor_desktop PROPERTIES WIN32_EXECUTABLE TRUE)
+
+    # Get Qt installation directory
+    get_target_property(_qt_core_location Qt6::Core LOCATION)
+    get_filename_component(_qt_bin_dir "${_qt_core_location}" DIRECTORY)
+    get_filename_component(_qt_install_dir "${_qt_bin_dir}" DIRECTORY)
+
+    # Copy Qt DLLs to output directory for easier debugging/running
+    add_custom_command(TARGET spriteai_editor_desktop POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qt6::Core>
+            $<TARGET_FILE:Qt6::Gui>
+            $<TARGET_FILE:Qt6::Widgets>
+            $<TARGET_FILE:Qt6::Network>
+            $<TARGET_FILE_DIR:spriteai_editor_desktop>
+    )
+
+    # Copy Qt platform plugins (required for Qt to run on Windows)
+    add_custom_command(TARGET spriteai_editor_desktop POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:spriteai_editor_desktop>/platforms"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${_qt_install_dir}/plugins/platforms/qwindows.dll"
+            "$<TARGET_FILE_DIR:spriteai_editor_desktop>/platforms/"
+    )
+
+    # Copy Qt styles plugins (for native look)
+    add_custom_command(TARGET spriteai_editor_desktop POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:spriteai_editor_desktop>/styles"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${_qt_install_dir}/plugins/styles"
+            "$<TARGET_FILE_DIR:spriteai_editor_desktop>/styles/"
+    )
 endif()
