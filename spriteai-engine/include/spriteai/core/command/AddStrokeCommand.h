@@ -1,21 +1,28 @@
 #pragma once
 #include <cstddef>
+#include <optional>
 #include "spriteai/core/command/Command.h"
 #include "spriteai/core/document/Stroke.h"
 
+namespace spriteai::core::document { class SpriteDocument; }
+
 namespace spriteai::core::command {
 
-class AddStrokeCommand final : public Command {
-public:
-    explicit AddStrokeCommand(spriteai::core::document::Stroke stroke);
+    class AddStrokeCommand final : public Command {
+    public:
+        // Normal kullanım: stroke daha document'e eklenmemişse
+        explicit AddStrokeCommand(spriteai::core::document::Stroke stroke);
 
-    void apply(spriteai::core::document::SpriteDocument& doc) override;
-    void undo(spriteai::core::document::SpriteDocument& doc) override;
+        // Live çizimde: stroke document'e zaten eklendi (index belli)
+        AddStrokeCommand(spriteai::core::document::Stroke stroke, std::size_t alreadyInsertedIndex);
 
-private:
-    spriteai::core::document::Stroke m_stroke;
-    // index where stroke was inserted (for undo)
-    std::size_t m_index = static_cast<std::size_t>(-1);
-};
+        void apply(spriteai::core::document::SpriteDocument& doc) override;
+        void undo(spriteai::core::document::SpriteDocument& doc) override;
+
+    private:
+        spriteai::core::document::Stroke m_stroke{};
+        std::optional<std::size_t> m_alreadyInsertedIndex; // varsa apply tekrar eklemez
+        std::size_t m_index = static_cast<std::size_t>(-1);
+    };
 
 } // namespace spriteai::core::command

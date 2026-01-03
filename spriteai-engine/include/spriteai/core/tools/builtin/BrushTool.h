@@ -25,11 +25,15 @@ public:
 
     void setColor(std::uint32_t rgba) { m_rgba = rgba; }
     void setWidth(float w) { m_width = w; }
+    void setSpacing(float s) { m_spacing = s; }
 
 private:
     std::uint32_t m_rgba;
     float m_width;
+    float m_spacing = 0.25f;
     bool m_drawing = false;
+    float m_lastX = 0.0f;
+    float m_lastY = 0.0f;
     spriteai::core::document::Stroke m_current{};
 };
 

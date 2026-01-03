@@ -103,10 +103,20 @@ void CpuCanvasRenderer::render(const spriteai::canvas::CanvasView& view) {
                 // "eraser": paint with canvas color (simple)
                 col = to_u32(theme.canvas.a ? theme.canvas : spriteai::engine::ColorRGBA8{12,18,25,255});
             }
-            for (const auto& pt : s.points) {
-                float sx, sy;
-                view.worldToScreen(pt.x, pt.y, sx, sy);
-                plot(int(sx), int(sy), col);
+
+            // Draw lines between consecutive points for smooth strokes
+            if (!s.points.empty()) {
+                float prevSx, prevSy;
+                view.worldToScreen(s.points[0].x, s.points[0].y, prevSx, prevSy);
+                plot(int(prevSx), int(prevSy), col);
+
+                for (std::size_t i = 1; i < s.points.size(); ++i) {
+                    float sx, sy;
+                    view.worldToScreen(s.points[i].x, s.points[i].y, sx, sy);
+                    drawLine(int(prevSx), int(prevSy), int(sx), int(sy), col);
+                    prevSx = sx;
+                    prevSy = sy;
+                }
             }
         }
     }

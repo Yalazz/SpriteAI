@@ -41,7 +41,10 @@ target_include_directories(spriteai_editor_desktop PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../spriteai-engine/include
 )
 
-add_subdirectory(../spriteai-engine spriteai-engine-build)
+# Add engine subdirectory only if building standalone (not from root)
+if(NOT TARGET spriteai_engine)
+    add_subdirectory(../spriteai-engine spriteai-engine-build)
+endif()
 
 target_link_libraries(spriteai_editor_desktop PRIVATE
         spriteai_engine

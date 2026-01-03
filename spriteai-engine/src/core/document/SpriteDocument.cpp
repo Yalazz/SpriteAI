@@ -18,6 +18,16 @@ namespace spriteai::core::document {
         m_active = nullptr;
     }
 
+    void SpriteDocument::addStroke(const Stroke& stroke) {
+        m_strokes.push_back(stroke);
+    }
+
+    void SpriteDocument::removeLastStroke() {
+        if (!m_strokes.empty()) {
+            m_strokes.pop_back();
+        }
+    }
+
     void SpriteDocument::clear() {
         m_strokes.clear();
         m_active = nullptr;

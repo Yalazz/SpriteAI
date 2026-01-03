@@ -3,7 +3,7 @@
 #include "spriteai/core/document/SpriteDocument.h"
 #include "spriteai/core/command/CommandStack.h"
 #include "spriteai/core/tools/ToolRegistry.h"
-#include "spriteai/core/tools/Tool.h"            // 🔴 ZORUNLU
+#include "spriteai/core/tools/Tool.h"
 #include "spriteai/engine/ai/IAIClient.h"
 
 namespace spriteai::engine {
@@ -25,48 +25,23 @@ struct EngineContext::Impl {
     std::shared_ptr<ai::IAIClient> aiClient{};
 };
 
-// ------------------------------------------------------------
-
 EngineContext::EngineContext()
-    : m(std::make_unique<Impl>()) {}
+    : m(std::make_unique<Impl>())
+{
+    // fallback theme (beyaz canvas istiyorsan burada default ver)
+    // Eğer theme.json gelmezse bile canvas beyaz olsun:
+    m->theme.canvas = ColorRGBA8{255,255,255,255};
+}
 
 EngineContext::~EngineContext() = default;
 
-// ------------------------------------------------------------
-// Document
-// ------------------------------------------------------------
+core::document::SpriteDocument& EngineContext::document() { return m->doc; }
+core::command::CommandStack& EngineContext::commandStack() { return m->cmd; }
 
-core::document::SpriteDocument& EngineContext::document() {
-    return m->doc;
-}
+void EngineContext::undo() { m->cmd.undo(m->doc); }
+void EngineContext::redo() { m->cmd.redo(m->doc); }
 
-// ------------------------------------------------------------
-// Command stack
-// ------------------------------------------------------------
-
-core::command::CommandStack& EngineContext::commandStack() {
-    return m->cmd;
-}
-
-// ------------------------------------------------------------
-// Undo / Redo
-// ------------------------------------------------------------
-
-void EngineContext::undo() {
-    m->cmd.undo(m->doc);
-}
-
-void EngineContext::redo() {
-    m->cmd.redo(m->doc);
-}
-
-// ------------------------------------------------------------
-// Tools
-// ------------------------------------------------------------
-
-core::tools::ToolRegistry& EngineContext::toolRegistry() {
-    return m->registry;
-}
+core::tools::ToolRegistry& EngineContext::toolRegistry() { return m->registry; }
 
 void EngineContext::setActiveTool(std::unique_ptr<core::tools::Tool> tool) {
     m->activeTool = std::move(tool);
@@ -75,10 +50,6 @@ void EngineContext::setActiveTool(std::unique_ptr<core::tools::Tool> tool) {
 core::tools::Tool* EngineContext::activeTool() const {
     return m->activeTool.get();
 }
-
-// ------------------------------------------------------------
-// Pointer adapter
-// ------------------------------------------------------------
 
 static ToolInput makeInput(float x, float y, float pressure,
                            bool alt, bool shift, bool down)
@@ -97,37 +68,25 @@ void EngineContext::pointerDown(float x, float y, float pressure,
                                 bool alt, bool shift)
 {
     if (!m->activeTool) return;
-    m->activeTool->onPointerDown(
-        m->doc, m->cmd, makeInput(x, y, pressure, alt, shift, true));
+    m->activeTool->onPointerDown(m->doc, m->cmd, makeInput(x,y,pressure,alt,shift,true));
 }
 
 void EngineContext::pointerMove(float x, float y, float pressure,
                                 bool alt, bool shift)
 {
     if (!m->activeTool) return;
-    m->activeTool->onPointerMove(
-        m->doc, m->cmd, makeInput(x, y, pressure, alt, shift, true));
+    m->activeTool->onPointerMove(m->doc, m->cmd, makeInput(x,y,pressure,alt,shift,true));
 }
 
 void EngineContext::pointerUp(float x, float y, float pressure,
                               bool alt, bool shift)
 {
     if (!m->activeTool) return;
-    m->activeTool->onPointerUp(
-        m->doc, m->cmd, makeInput(x, y, pressure, alt, shift, false));
+    m->activeTool->onPointerUp(m->doc, m->cmd, makeInput(x,y,pressure,alt,shift,false));
 }
 
-// ------------------------------------------------------------
-// Theme / overlays
-// ------------------------------------------------------------
-
-void EngineContext::setTheme(const Theme& t) {
-    m->theme = t;
-}
-
-const Theme& EngineContext::theme() const {
-    return m->theme;
-}
+void EngineContext::setTheme(const Theme& t) { m->theme = t; }
+const Theme& EngineContext::theme() const { return m->theme; }
 
 overlays::GridSettings& EngineContext::grid() { return m->grid; }
 const overlays::GridSettings& EngineContext::grid() const { return m->grid; }
@@ -138,16 +97,9 @@ const overlays::SymmetrySettings& EngineContext::symmetry() const { return m->sy
 overlays::GuideSettings& EngineContext::guides() { return m->guides; }
 const overlays::GuideSettings& EngineContext::guides() const { return m->guides; }
 
-// ------------------------------------------------------------
-// AI
-// ------------------------------------------------------------
-
 void EngineContext::setAIClient(std::shared_ptr<ai::IAIClient> client) {
     m->aiClient = std::move(client);
 }
-
-std::shared_ptr<ai::IAIClient> EngineContext::aiClient() const {
-    return m->aiClient;
-}
+std::shared_ptr<ai::IAIClient> EngineContext::aiClient() const { return m->aiClient; }
 
 } // namespace spriteai::engine

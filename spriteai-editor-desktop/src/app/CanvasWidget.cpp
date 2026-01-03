@@ -32,7 +32,21 @@ CanvasWidget::CanvasWidget(QWidget* parent)
     m_engine->setAIClient(aiClient);
 
     // ---- Hot reload
-    m_hotReload->setProjectRoot(QDir::currentPath());
+    // Find project root by looking for config directory
+    QString projectRoot = QDir::currentPath();
+    QDir searchDir(projectRoot);
+
+    // Search up the directory tree for config/tools/default.tools.json
+    int maxLevels = 5;
+    while (maxLevels-- > 0) {
+        if (QFile::exists(searchDir.filePath("config/tools/default.tools.json"))) {
+            projectRoot = searchDir.absolutePath();
+            break;
+        }
+        if (!searchDir.cdUp()) break;
+    }
+
+    m_hotReload->setProjectRoot(projectRoot);
     m_hotReload->start();
 
     connect(m_hotReload.get(), &ConfigHotReload::configReloaded,
@@ -97,22 +111,32 @@ void CanvasWidget::paintEvent(QPaintEvent*) {
 }
 
 
+void CanvasWidget::scheduleUpdate() {
+    if (!m_updateScheduled) {
+        m_updateScheduled = true;
+        QMetaObject::invokeMethod(this, [this]() {
+            m_updateScheduled = false;
+            update();
+        }, Qt::QueuedConnection);
+    }
+}
+
 void CanvasWidget::mousePressEvent(QMouseEvent* e) {
     if (e->button() == Qt::LeftButton)
         sendPointer(true, e);
-    update();
+    scheduleUpdate();
 }
 
 void CanvasWidget::mouseMoveEvent(QMouseEvent* e) {
     if (e->buttons() & Qt::LeftButton)
         sendPointer(true, e);
-    update();
+    scheduleUpdate();
 }
 
 void CanvasWidget::mouseReleaseEvent(QMouseEvent* e) {
     if (e->button() == Qt::LeftButton)
         sendPointer(false, e);
-    update();
+    scheduleUpdate();
 }
 
 // ------------------------------------------------------------

@@ -34,7 +34,9 @@ namespace spriteai::editor::app {
         std::unique_ptr<spriteai::engine::renderer::ICanvasRenderer> m_renderer;
         std::unique_ptr<ConfigHotReload> m_hotReload;
 
+        bool m_updateScheduled = false;
         void sendPointer(bool down, QMouseEvent* e);
+        void scheduleUpdate();
     };
 
 } // namespace spriteai::editor::app

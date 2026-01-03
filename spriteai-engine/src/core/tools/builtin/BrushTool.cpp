@@ -5,34 +5,62 @@
 
 namespace spriteai::core::tools::builtin {
 
-BrushTool::BrushTool(std::uint32_t rgba, float width) : m_rgba(rgba), m_width(width) {}
+    BrushTool::BrushTool(std::uint32_t rgba, float width)
+        : m_rgba(rgba), m_width(width)
+    {}
 
-void BrushTool::onPointerDown(spriteai::core::document::SpriteDocument&,
-                              spriteai::core::command::CommandStack&,
-                              const ToolInput& in) {
-    m_drawing = true;
-    m_current = {};
-    m_current.rgba = m_rgba;
-    m_current.width = m_width;
-    m_current.points.push_back({in.x, in.y, in.pressure});
-}
+    void BrushTool::onPointerDown(spriteai::core::document::SpriteDocument& doc,
+                                  spriteai::core::command::CommandStack&,
+                                  const ToolInput& in)
+    {
+        m_drawing = true;
+        m_lastX = in.x;
+        m_lastY = in.y;
 
-void BrushTool::onPointerMove(spriteai::core::document::SpriteDocument&,
-                              spriteai::core::command::CommandStack&,
-                              const ToolInput& in) {
-    if (!m_drawing) return;
-    m_current.points.push_back({in.x, in.y, in.pressure});
-}
+        // LIVE: document içine stroke aç
+        doc.beginStroke(m_rgba, m_width);
+        doc.addPoint(in.x, in.y, in.pressure);
+    }
 
-void BrushTool::onPointerUp(spriteai::core::document::SpriteDocument& doc,
-                            spriteai::core::command::CommandStack& stack,
-                            const ToolInput& in) {
-    if (!m_drawing) return;
-    m_current.points.push_back({in.x, in.y, in.pressure});
-    m_drawing = false;
+    void BrushTool::onPointerMove(spriteai::core::document::SpriteDocument& doc,
+                                  spriteai::core::command::CommandStack&,
+                                  const ToolInput& in)
+    {
+        if (!m_drawing) return;
 
-    if (m_current.points.size() < 2) return;
-    stack.execute(doc, std::make_unique<spriteai::core::command::AddStrokeCommand>(m_current));
-}
+        // Apply spacing: only add point if far enough from last point
+        float dx = in.x - m_lastX;
+        float dy = in.y - m_lastY;
+        float distSq = dx * dx + dy * dy;
+        float minDistSq = m_spacing * m_spacing;
+
+        if (distSq >= minDistSq) {
+            doc.addPoint(in.x, in.y, in.pressure);
+            m_lastX = in.x;
+            m_lastY = in.y;
+        }
+    }
+
+    void BrushTool::onPointerUp(spriteai::core::document::SpriteDocument& doc,
+                                spriteai::core::command::CommandStack& stack,
+                                const ToolInput& in)
+    {
+        if (!m_drawing) return;
+        m_drawing = false;
+
+        // LIVE: son nokta + stroke bitir
+        doc.addPoint(in.x, in.y, in.pressure);
+        doc.endStroke();
+
+        // Document'e eklenmiş son stroke'u command'a dönüştür (undo/redo için)
+        auto& strokes = doc.mutableStrokes();
+        if (strokes.empty()) return;
+
+        const std::size_t idx = strokes.size() - 1;
+        const auto strokeCopy = strokes[idx]; // command kendi kopyasını tutsun
+
+        // "alreadyInsertedIndex" ile apply tekrar eklemeyecek
+        stack.execute(doc, std::make_unique<spriteai::core::command::AddStrokeCommand>(strokeCopy, idx));
+    }
 
 } // namespace spriteai::core::tools::builtin

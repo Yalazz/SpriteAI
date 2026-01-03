@@ -5,21 +5,25 @@
 
 namespace spriteai::core::document {
 
-// "Document" ismiyle çakışma olmaması için: SpriteDocument.
-class SpriteDocument {
-public:
-    void beginStroke(std::uint32_t rgba, float width);
-    void addPoint(float x, float y, float pressure = 1.0f);
-    void endStroke();
+    class SpriteDocument {
+    public:
+        // -------- Interactive drawing (tool-side)
+        void beginStroke(std::uint32_t rgba, float width);
+        void addPoint(float x, float y, float pressure = 1.0f);
+        void endStroke();
 
-    void clear();
+        // -------- Command-based API (UNDO / REDO için ZORUNLU)
+        void addStroke(const Stroke& stroke);
+        void removeLastStroke();
 
-    const std::vector<Stroke>& strokes() const;
+        void clear();
+
+        const std::vector<Stroke>& strokes() const;
         std::vector<Stroke>& mutableStrokes();
 
-private:
-    std::vector<Stroke> m_strokes;
-    Stroke* m_active = nullptr;
-};
+    private:
+        std::vector<Stroke> m_strokes;
+        Stroke* m_active = nullptr;
+    };
 
 } // namespace spriteai::core::document

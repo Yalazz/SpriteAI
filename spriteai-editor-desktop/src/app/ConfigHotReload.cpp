@@ -14,6 +14,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QDebug>
 
 namespace spriteai::editor::app {
 
@@ -46,6 +47,9 @@ static spriteai::engine::ColorRGBA8 parseHex(const QString& hex) {
 
     static std::uint32_t parseRgbaU32(const QString& hex) {
     const auto c = parseHex(hex);
+    if (c.r == 0 && c.g == 0 && c.b == 0 && c.a == 0) {
+        qWarning() << "Failed to parse color:" << hex;
+    }
     return (std::uint32_t(c.a) << 24)  // A
          | (std::uint32_t(c.r) << 16)  // R
          | (std::uint32_t(c.g) << 8)   // G
@@ -147,18 +151,33 @@ void ConfigHotReload::reloadTheme() {
 
 void ConfigHotReload::reloadTools() {
     QFile f(m_toolsPath);
-    if (!f.open(QIODevice::ReadOnly)) return;
+    if (!f.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open tools config:" << m_toolsPath;
+        qWarning() << "Creating default brush tool as fallback";
+        // JSON yoksa fallback
+        if (auto tool = m_engine.toolRegistry().create("builtin.brush")) {
+            m_engine.setActiveTool(std::move(tool));
+        }
+        return;
+    }
 
     const auto doc = QJsonDocument::fromJson(f.readAll());
-    if (!doc.isObject()) return;
+    if (!doc.isObject()) {
+        qWarning() << "Invalid JSON in tools config:" << m_toolsPath;
+        qWarning() << "Creating default brush tool as fallback";
+        if (auto tool = m_engine.toolRegistry().create("builtin.brush")) {
+            m_engine.setActiveTool(std::move(tool));
+        }
+        return;
+    }
 
     const auto obj = doc.object();
     const QString activeToolId = obj.value("activeTool").toString();
 
     // Shortcuts
     m_shortcuts.clear();
-    for (auto it = obj.value("shortcuts").toObject().begin();
-         it != obj.value("shortcuts").toObject().end(); ++it)
+    const auto shortcuts = obj.value("shortcuts").toObject();
+    for (auto it = shortcuts.begin(); it != shortcuts.end(); ++it)
     {
         const QString key = it.key().toUpper();
         if (key.size() == 1)
@@ -182,11 +201,21 @@ void ConfigHotReload::reloadTools() {
         }
     }
 
+    // Active tool: JSON varsa onu seç, yoksa brush fallback
     if (!activeToolId.isEmpty()) {
-        if (auto tool = createToolById(activeToolId))
+        if (auto tool = createToolById(activeToolId)) {
             m_engine.setActiveTool(std::move(tool));
+            return;
+        }
+        qWarning() << "Failed to create tool:" << activeToolId;
+        qWarning() << "Falling back to default brush tool";
+    }
+
+    if (auto tool = m_engine.toolRegistry().create("builtin.brush")) {
+        m_engine.setActiveTool(std::move(tool));
     }
 }
+
 
 // ------------------------------------------------------------
 // Tool factory
@@ -208,6 +237,8 @@ ConfigHotReload::createToolById(const QString& toolId) const
             b->setWidth(float(settings.value("size").toDouble(6.0)));
         if (settings.contains("rgba"))
             b->setColor(parseRgbaU32(settings.value("rgba").toString()));
+        if (settings.contains("spacing"))
+            b->setSpacing(float(settings.value("spacing").toDouble(0.25)));
     }
 
     if (auto* ai = dynamic_cast<spriteai::core::tools::builtin::AITool*>(tool.get())) {
