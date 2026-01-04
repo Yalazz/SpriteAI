@@ -63,6 +63,99 @@ CanvasWidget::CanvasWidget(QWidget* parent)
 CanvasWidget::~CanvasWidget() = default;
 
 // ------------------------------------------------------------
+// Tool Management
+// ------------------------------------------------------------
+
+void CanvasWidget::setTool(const QString& toolId)
+{
+    if (!m_hotReload) return;
+
+    auto tool = m_hotReload->createToolById(toolId);
+    if (tool) {
+        if (auto* aiTool = dynamic_cast<spriteai::core::tools::builtin::AITool*>(tool.get())) {
+            aiTool->setAIClient(m_engine->aiClient());
+        }
+        m_engine->setActiveTool(std::move(tool));
+        emit toolChanged(toolId);
+        update();
+    }
+}
+
+// ------------------------------------------------------------
+// Edit Operations
+// ------------------------------------------------------------
+
+void CanvasWidget::undo()
+{
+    if (m_engine) {
+        m_engine->undo();
+        update();
+    }
+}
+
+void CanvasWidget::redo()
+{
+    if (m_engine) {
+        m_engine->redo();
+        update();
+    }
+}
+
+// ------------------------------------------------------------
+// View Operations
+// ------------------------------------------------------------
+
+void CanvasWidget::zoomIn()
+{
+    if (m_view) {
+        auto& cam = m_view->camera();
+        cam.zoom = std::clamp(cam.zoom * 1.25f, 0.1f, 20.0f);
+        emit zoomChanged(cam.zoom);
+        update();
+    }
+}
+
+void CanvasWidget::zoomOut()
+{
+    if (m_view) {
+        auto& cam = m_view->camera();
+        cam.zoom = std::clamp(cam.zoom / 1.25f, 0.1f, 20.0f);
+        emit zoomChanged(cam.zoom);
+        update();
+    }
+}
+
+void CanvasWidget::zoomFit()
+{
+    if (m_view) {
+        auto& cam = m_view->camera();
+        cam.zoom = 1.0f;
+        cam.panX = 0.0f;
+        cam.panY = 0.0f;
+        emit zoomChanged(cam.zoom);
+        update();
+    }
+}
+
+void CanvasWidget::setZoom(float zoom)
+{
+    if (m_view) {
+        auto& cam = m_view->camera();
+        cam.zoom = std::clamp(zoom, 0.1f, 20.0f);
+        emit zoomChanged(cam.zoom);
+        update();
+    }
+}
+
+float CanvasWidget::zoom() const
+{
+    if (m_view) {
+        return m_view->camera().zoom;
+    }
+    return 1.0f;
+}
+
+// ------------------------------------------------------------
 // Rendering
 // ------------------------------------------------------------
 

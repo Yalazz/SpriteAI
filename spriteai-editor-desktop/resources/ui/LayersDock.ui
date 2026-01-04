@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LayersDock</class>
+ <widget class="QWidget" name="LayersDock">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>280</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+QWidget {
+    background-color: #1a1a2e;
+    color: #e8e8e8;
+}
+QListWidget {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 4px;
+}
+QListWidget::item {
+    background-color: #1a1a2e;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 2px;
+}
+QListWidget::item:selected {
+    background-color: #0f3460;
+    border-color: #e94560;
+}
+QListWidget::item:hover {
+    background-color: #232344;
+}
+QPushButton, QToolButton {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 4px;
+    padding: 6px;
+    color: #e8e8e8;
+}
+QPushButton:hover, QToolButton:hover {
+    background-color: #0f3460;
+    border-color: #e94560;
+}
+QPushButton:pressed, QToolButton:pressed {
+    background-color: #e94560;
+}
+QSlider::groove:horizontal {
+    border: 1px solid #0f3460;
+    height: 6px;
+    background: #16213e;
+    border-radius: 3px;
+}
+QSlider::handle:horizontal {
+    background: #e94560;
+    border: 1px solid #c73e54;
+    width: 14px;
+    margin: -4px 0;
+    border-radius: 7px;
+}
+QLabel {
+    color: #888;
+    font-size: 11px;
+}
+QComboBox {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #e8e8e8;
+}
+QComboBox:hover {
+    border-color: #e94560;
+}
+QComboBox::drop-down {
+    border: none;
+}
+QComboBox QAbstractItemView {
+    background-color: #16213e;
+    border: 1px solid #0f3460;
+    selection-background-color: #e94560;
+}
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>8</number>
+   </property>
+   <property name="leftMargin">
+    <number>8</number>
+   </property>
+   <property name="topMargin">
+    <number>8</number>
+   </property>
+   <property name="rightMargin">
+    <number>8</number>
+   </property>
+   <property name="bottomMargin">
+    <number>8</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="blendModeLayout">
+     <item>
+      <widget class="QLabel" name="labelBlendMode">
+       <property name="text">
+        <string>Blend:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBlendMode">
+       <item>
+        <property name="text">
+         <string>Normal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Multiply</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Screen</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Overlay</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Darken</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Lighten</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="opacityLayout">
+     <item>
+      <widget class="QLabel" name="labelOpacity">
+       <property name="text">
+        <string>Opacity:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="sliderLayerOpacity">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelOpacityValue">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>100%</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QListWidget" name="listLayers">
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDropMode::InternalMove</enum>
+     </property>
+     <property name="defaultDropAction">
+      <enum>Qt::DropAction::MoveAction</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Layer 1</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../icons.qrc">
+        <normaloff>:/icons/icons/layers.svg</normaloff>:/icons/icons/layers.svg</iconset>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="btnAddLayer">
+       <property name="toolTip">
+        <string>Add Layer</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons.qrc">
+         <normaloff>:/icons/icons/plus.svg</normaloff>:/icons/icons/plus.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="btnDeleteLayer">
+       <property name="toolTip">
+        <string>Delete Layer</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons.qrc">
+         <normaloff>:/icons/icons/trash.svg</normaloff>:/icons/icons/trash.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="btnDuplicateLayer">
+       <property name="toolTip">
+        <string>Duplicate Layer</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons.qrc">
+         <normaloff>:/icons/icons/layers.svg</normaloff>:/icons/icons/layers.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="btnMoveUp">
+       <property name="toolTip">
+        <string>Move Layer Up</string>
+       </property>
+       <property name="text">
+        <string>Up</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="btnMoveDown">
+       <property name="toolTip">
+        <string>Move Layer Down</string>
+       </property>
+       <property name="text">
+        <string>Dn</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

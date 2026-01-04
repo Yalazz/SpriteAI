@@ -20,6 +20,24 @@ namespace spriteai::editor::app {
         explicit CanvasWidget(QWidget* parent = nullptr);
         ~CanvasWidget() override;
 
+        // Tool management
+        void setTool(const QString& toolId);
+
+        // Edit operations
+        void undo();
+        void redo();
+
+        // View operations
+        void zoomIn();
+        void zoomOut();
+        void zoomFit();
+        void setZoom(float zoom);
+        float zoom() const;
+
+    signals:
+        void toolChanged(const QString& toolId);
+        void zoomChanged(float zoom);
+
     protected:
         void paintEvent(QPaintEvent*) override;
         void mousePressEvent(QMouseEvent*) override;
