@@ -1,0 +1,32 @@
+{
+  "name": "Monokai Pro",
+  "version": 3,
+  "colors": {
+    "background": "#2d2a2e",
+    "canvas": "#403e41",
+    "gridMajor": "#5b595c",
+    "gridMinor": "#4a484b",
+    "stroke": "#fcfcfa",
+    "guide": "#78dce8",
+    "symmetry": "#ff6188"
+  },
+  "ui": {
+    "background": "#2d2a2e",
+    "surface": "#403e41",
+    "surfaceHover": "#5b595c",
+    "primary": "#a9dc76",
+    "primaryHover": "#8bc34a",
+    "secondary": "#78dce8",
+    "text": "#fcfcfa",
+    "textSecondary": "#c1c0c0",
+    "textDisabled": "#727072",
+    "border": "#5b595c",
+    "success": "#a9dc76",
+    "warning": "#ffd866",
+    "error": "#ff6188",
+    "radius": 4,
+    "spacing": 8,
+    "font": "Consolas",
+    "fontSize": 10
+  }
+}

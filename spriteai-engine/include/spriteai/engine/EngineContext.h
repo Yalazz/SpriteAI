@@ -8,7 +8,8 @@
 
 namespace spriteai::core::document { class SpriteDocument; }
 namespace spriteai::core::command { class CommandStack; }
-namespace spriteai::core::tools { class ToolRegistry; }
+namespace spriteai::core::tools { class ToolRegistry; class ToolContext; }
+namespace spriteai::core::selection { class Selection; }
 namespace spriteai::engine::ai { class IAIClient; }
 
 namespace spriteai::engine {
@@ -29,6 +30,14 @@ public:
     spriteai::core::tools::ToolRegistry& toolRegistry();
     void setActiveTool(std::unique_ptr<spriteai::core::tools::Tool> tool);
     spriteai::core::tools::Tool* activeTool() const;
+
+    // ---------------- Tool Context ----------------
+    spriteai::core::tools::ToolContext& toolContext();
+    const spriteai::core::tools::ToolContext& toolContext() const;
+
+    // ---------------- Selection ----------------
+    spriteai::core::selection::Selection& selection();
+    const spriteai::core::selection::Selection& selection() const;
 
     // ---------------- Pointer Input ----------------
     void pointerDown(float x, float y, float pressure, bool alt, bool shift);

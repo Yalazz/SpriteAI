@@ -5,9 +5,10 @@
 #include <QHash>
 #include <QJsonObject>
 #include <QString>
+#include <QStringList>
 #include <memory>
 
-namespace spriteai::engine { class EngineContext; }
+namespace spriteai::engine { class EngineContext; struct Theme; }
 namespace spriteai::core::tools { class Tool; }
 
 namespace spriteai::editor::app {
@@ -35,8 +36,18 @@ namespace spriteai::editor::app {
         // Creates a tool from the last loaded tools.json (and applies settings).
         std::unique_ptr<spriteai::core::tools::Tool> createToolById(const QString& toolId) const;
 
-        signals:
-            void configReloaded();
+        // Theme management
+        QStringList availableThemes() const;
+        QString currentThemeName() const;
+        void setTheme(const QString& themeName);
+
+        // Generate Qt stylesheet from current theme
+        QString generateStylesheet() const;
+
+    signals:
+        void configReloaded();
+        void themeChanged(const QString& themeName);
+        void stylesheetGenerated(const QString& stylesheet);
 
     private slots:
         void onFileChanged(const QString& path);
@@ -46,6 +57,8 @@ namespace spriteai::editor::app {
 
         void reloadTheme();
         void reloadTools();
+        void scanAvailableThemes();
+        QString generateStylesheetFromTheme(const spriteai::engine::Theme& theme) const;
 
     private:
         spriteai::engine::EngineContext& m_engine;
@@ -54,6 +67,8 @@ namespace spriteai::editor::app {
         QString m_root;
         QString m_themePath;
         QString m_toolsPath;
+        QString m_currentThemeName;
+        QStringList m_availableThemes;
 
         QHash<int, QString> m_shortcuts;                 // Qt::Key -> toolId
         QHash<QString, QString> m_toolTypes;             // toolId -> registry type

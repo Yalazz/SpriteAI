@@ -1,0 +1,32 @@
+{
+  "name": "Clean Light",
+  "version": 3,
+  "colors": {
+    "background": "#f5f5f5",
+    "canvas": "#ffffff",
+    "gridMajor": "#cccccc",
+    "gridMinor": "#e0e0e0",
+    "stroke": "#333333",
+    "guide": "#2196f3",
+    "symmetry": "#e91e63"
+  },
+  "ui": {
+    "background": "#f8f9fa",
+    "surface": "#ffffff",
+    "surfaceHover": "#e9ecef",
+    "primary": "#007bff",
+    "primaryHover": "#0056b3",
+    "secondary": "#6c757d",
+    "text": "#212529",
+    "textSecondary": "#6c757d",
+    "textDisabled": "#adb5bd",
+    "border": "#dee2e6",
+    "success": "#28a745",
+    "warning": "#ffc107",
+    "error": "#dc3545",
+    "radius": 6,
+    "spacing": 8,
+    "font": "Segoe UI",
+    "fontSize": 10
+  }
+}

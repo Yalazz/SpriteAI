@@ -18,10 +18,12 @@ public:
 private:
     int m_w = 0;
     int m_h = 0;
-    std::vector<std::uint32_t> m_pixels; // RGBA8
+    std::vector<std::uint32_t> m_pixels; // Qt RGBA8888 format
 
-    void plot(int x, int y, std::uint32_t rgba);
-    void drawLine(int x0, int y0, int x1, int y1, std::uint32_t rgba);
+    void plot(int x, int y, std::uint32_t argb);
+    void plotBlend(int x, int y, std::uint32_t argb);
+    void drawLine(int x0, int y0, int x1, int y1, std::uint32_t argb);
+    void drawThickLine(int x0, int y0, int x1, int y1, std::uint32_t argb, float width);
 };
 
 } // namespace spriteai::engine::renderer::cpu

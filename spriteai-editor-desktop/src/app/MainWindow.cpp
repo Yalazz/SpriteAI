@@ -120,6 +120,7 @@ void MainWindow::setupConnections()
 
     // Tools menu
     connect(ui->actionBrush, &QAction::triggered, this, &MainWindow::onToolBrush);
+    connect(ui->actionPencil, &QAction::triggered, this, &MainWindow::onToolPencil);
     connect(ui->actionEraser, &QAction::triggered, this, &MainWindow::onToolEraser);
     connect(ui->actionAITool, &QAction::triggered, this, &MainWindow::onToolAI);
     connect(ui->actionEyedropper, &QAction::triggered, this, &MainWindow::onToolEyedropper);
@@ -133,6 +134,7 @@ void MainWindow::setupConnections()
     // Tools dock
     connect(m_toolsDock, &ToolsDockWidget::toolSelected, this, [this](const QString& toolId) {
         if (toolId == "brush") onToolBrush();
+        else if (toolId == "pencil") onToolPencil();
         else if (toolId == "eraser") onToolEraser();
         else if (toolId == "ai") onToolAI();
         else if (toolId == "eyedropper") onToolEyedropper();
@@ -144,12 +146,90 @@ void MainWindow::setupConnections()
     // History dock
     connect(m_historyDock, &HistoryDockWidget::undoRequested, this, &MainWindow::onUndo);
     connect(m_historyDock, &HistoryDockWidget::redoRequested, this, &MainWindow::onRedo);
+
+    // Color dock → Canvas
+    connect(m_colorDock, &ColorDockWidget::foregroundColorChanged, this, [this](const QColor& color) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setForegroundColor(color);
+        }
+    });
+    connect(m_colorDock, &ColorDockWidget::backgroundColorChanged, this, [this](const QColor& color) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setBackgroundColor(color);
+        }
+    });
+
+    // Brush settings dock → Canvas
+    connect(m_brushSettingsDock, &BrushSettingsDockWidget::brushSizeChanged, this, [this](int size) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setBrushSize(size);
+        }
+    });
+    connect(m_brushSettingsDock, &BrushSettingsDockWidget::brushOpacityChanged, this, [this](int opacity) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setBrushOpacity(opacity);
+        }
+    });
+    connect(m_brushSettingsDock, &BrushSettingsDockWidget::brushSpacingChanged, this, [this](int spacing) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setBrushSpacing(spacing);
+        }
+    });
+
+    // Layers dock → Canvas
+    connect(m_layersDock, &LayersDockWidget::layerAdded, this, [this]() {
+        if (m_canvasWidget) {
+            m_canvasWidget->addLayer();
+        }
+    });
+    connect(m_layersDock, &LayersDockWidget::layerDeleted, this, [this](int index) {
+        if (m_canvasWidget) {
+            m_canvasWidget->deleteLayer(index);
+        }
+    });
+    connect(m_layersDock, &LayersDockWidget::layerDuplicated, this, [this](int index) {
+        if (m_canvasWidget) {
+            m_canvasWidget->duplicateLayer(index);
+        }
+    });
+    connect(m_layersDock, &LayersDockWidget::layerMoved, this, [this](int from, int to) {
+        if (m_canvasWidget) {
+            m_canvasWidget->moveLayer(from, to);
+        }
+    });
+    connect(m_layersDock, &LayersDockWidget::layerSelected, this, [this](int index) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setActiveLayer(index);
+        }
+    });
+    connect(m_layersDock, &LayersDockWidget::layerOpacityChanged, this, [this](int index, int opacity) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setLayerOpacity(index, opacity);
+        }
+    });
+    connect(m_layersDock, &LayersDockWidget::blendModeChanged, this, [this](int index, const QString& mode) {
+        if (m_canvasWidget) {
+            m_canvasWidget->setLayerBlendMode(index, mode);
+        }
+    });
+
+    // Edit menu - additional actions
+    connect(ui->actionSelectAll, &QAction::triggered, this, &MainWindow::onSelectAll);
+    connect(ui->actionDeselectAll, &QAction::triggered, this, &MainWindow::onDeselectAll);
+    connect(ui->actionDelete, &QAction::triggered, this, &MainWindow::onDelete);
+
+    // Image menu
+    connect(ui->actionFlipHorizontal, &QAction::triggered, this, &MainWindow::onFlipHorizontal);
+    connect(ui->actionFlipVertical, &QAction::triggered, this, &MainWindow::onFlipVertical);
+    connect(ui->actionRotate90CW, &QAction::triggered, this, &MainWindow::onRotate90CW);
+    connect(ui->actionRotate90CCW, &QAction::triggered, this, &MainWindow::onRotate90CCW);
 }
 
 void MainWindow::setupToolActionGroup()
 {
     m_toolActionGroup = new QActionGroup(this);
     m_toolActionGroup->addAction(ui->actionBrush);
+    m_toolActionGroup->addAction(ui->actionPencil);
     m_toolActionGroup->addAction(ui->actionEraser);
     m_toolActionGroup->addAction(ui->actionAITool);
     m_toolActionGroup->addAction(ui->actionEyedropper);
@@ -182,7 +262,9 @@ void MainWindow::updateStatusBar()
 // File actions
 void MainWindow::onNewFile()
 {
-    // TODO: Implement new file dialog
+    if (m_canvasWidget) {
+        m_canvasWidget->clearCanvas();
+    }
     ui->statusBar->showMessage(tr("New file created"), 2000);
 }
 
@@ -273,12 +355,76 @@ void MainWindow::onZoom100()
 
 void MainWindow::onToggleGrid(bool checked)
 {
+    if (m_canvasWidget) {
+        m_canvasWidget->setGridEnabled(checked);
+    }
     ui->statusBar->showMessage(checked ? tr("Grid enabled") : tr("Grid disabled"), 1000);
 }
 
 void MainWindow::onToggleSymmetry(bool checked)
 {
+    if (m_canvasWidget) {
+        m_canvasWidget->setSymmetryEnabled(checked);
+    }
     ui->statusBar->showMessage(checked ? tr("Symmetry enabled") : tr("Symmetry disabled"), 1000);
+}
+
+// Edit actions (additional)
+void MainWindow::onSelectAll()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->selectAll();
+    }
+    ui->statusBar->showMessage(tr("Selected all"), 1000);
+}
+
+void MainWindow::onDeselectAll()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->deselectAll();
+    }
+    ui->statusBar->showMessage(tr("Deselected all"), 1000);
+}
+
+void MainWindow::onDelete()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->deleteSelection();
+    }
+    ui->statusBar->showMessage(tr("Deleted selection"), 1000);
+}
+
+// Image actions
+void MainWindow::onFlipHorizontal()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->flipHorizontal();
+    }
+    ui->statusBar->showMessage(tr("Flipped horizontally"), 1000);
+}
+
+void MainWindow::onFlipVertical()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->flipVertical();
+    }
+    ui->statusBar->showMessage(tr("Flipped vertically"), 1000);
+}
+
+void MainWindow::onRotate90CW()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->rotate90CW();
+    }
+    ui->statusBar->showMessage(tr("Rotated 90° clockwise"), 1000);
+}
+
+void MainWindow::onRotate90CCW()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->rotate90CCW();
+    }
+    ui->statusBar->showMessage(tr("Rotated 90° counter-clockwise"), 1000);
 }
 
 // Tool actions
@@ -290,6 +436,16 @@ void MainWindow::onToolBrush()
     ui->actionBrush->setChecked(true);
     m_toolsDock->setCurrentTool("brush");
     ui->statusBar->showMessage(tr("Brush Tool"), 1000);
+}
+
+void MainWindow::onToolPencil()
+{
+    if (m_canvasWidget) {
+        m_canvasWidget->setTool("pencil");
+    }
+    ui->actionPencil->setChecked(true);
+    m_toolsDock->setCurrentTool("pencil");
+    ui->statusBar->showMessage(tr("Pencil Tool"), 1000);
 }
 
 void MainWindow::onToolEraser()

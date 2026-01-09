@@ -184,6 +184,7 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionBrush"/>
+    <addaction name="actionPencil"/>
     <addaction name="actionEraser"/>
     <addaction name="actionAITool"/>
     <addaction name="separator"/>
@@ -311,6 +312,7 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
     <bool>false</bool>
    </attribute>
    <addaction name="actionBrush"/>
+   <addaction name="actionPencil"/>
    <addaction name="actionEraser"/>
    <addaction name="actionAITool"/>
    <addaction name="separator"/>
@@ -651,6 +653,24 @@ QDockWidget::close-button:hover, QDockWidget::float-button:hover {
    </property>
    <property name="shortcut">
     <string>B</string>
+   </property>
+  </action>
+  <action name="actionPencil">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/pencil.svg</normaloff>:/icons/icons/pencil.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Pencil</string>
+   </property>
+   <property name="toolTip">
+    <string>Pencil Tool (P)</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
    </property>
   </action>
   <action name="actionEraser">

@@ -1,0 +1,32 @@
+{
+  "name": "Solarized Dark",
+  "version": 3,
+  "colors": {
+    "background": "#002b36",
+    "canvas": "#073642",
+    "gridMajor": "#586e75",
+    "gridMinor": "#073642",
+    "stroke": "#839496",
+    "guide": "#268bd2",
+    "symmetry": "#d33682"
+  },
+  "ui": {
+    "background": "#002b36",
+    "surface": "#073642",
+    "surfaceHover": "#094959",
+    "primary": "#b58900",
+    "primaryHover": "#cb4b16",
+    "secondary": "#2aa198",
+    "text": "#839496",
+    "textSecondary": "#657b83",
+    "textDisabled": "#586e75",
+    "border": "#073642",
+    "success": "#859900",
+    "warning": "#b58900",
+    "error": "#dc322f",
+    "radius": 4,
+    "spacing": 8,
+    "font": "Segoe UI",
+    "fontSize": 10
+  }
+}

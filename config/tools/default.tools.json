@@ -13,12 +13,49 @@
       }
     },
     {
+      "id": "pencil",
+      "name": "Pencil",
+      "type": "builtin.pencil",
+      "settings": {
+        "rgba": "#E8F1FF"
+      }
+    },
+    {
       "id": "eraser",
       "name": "Eraser",
       "type": "builtin.eraser",
       "settings": {
         "size": 18
       }
+    },
+    {
+      "id": "fill",
+      "name": "Fill",
+      "type": "builtin.fill",
+      "settings": {
+        "rgba": "#E8F1FF",
+        "tolerance": 0
+      }
+    },
+    {
+      "id": "eyedropper",
+      "name": "Eyedropper",
+      "type": "builtin.eyedropper",
+      "settings": {}
+    },
+    {
+      "id": "select",
+      "name": "Select",
+      "type": "builtin.select",
+      "settings": {
+        "mode": "rectangle"
+      }
+    },
+    {
+      "id": "move",
+      "name": "Move",
+      "type": "builtin.move",
+      "settings": {}
     },
     {
       "id": "ai_clean",
@@ -32,7 +69,12 @@
   ],
   "shortcuts": {
     "B": "brush",
+    "P": "pencil",
     "E": "eraser",
+    "G": "fill",
+    "I": "eyedropper",
+    "M": "select",
+    "V": "move",
     "A": "ai_clean"
   }
 }

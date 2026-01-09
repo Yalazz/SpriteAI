@@ -1,16 +1,16 @@
 #pragma once
 #include "spriteai/core/tools/Tool.h"
-#include "spriteai/core/document/Stroke.h"
 #include <vector>
+#include <cstddef>
 
 namespace spriteai::core::tools::builtin {
 
-class BrushTool final : public Tool {
+class MoveTool final : public Tool {
 public:
-    BrushTool(std::uint32_t rgba = 0xFFFFFFFF, float width = 6.0f);
+    MoveTool() = default;
 
-    std::string id() const override { return "brush"; }
-    std::string displayName() const override { return "Brush"; }
+    std::string id() const override { return "move"; }
+    std::string displayName() const override { return "Move"; }
 
     void onPointerDown(spriteai::core::document::SpriteDocument&,
                        spriteai::core::command::CommandStack&,
@@ -24,17 +24,13 @@ public:
                      spriteai::core::command::CommandStack&,
                      const ToolInput&) override;
 
-    void setColor(std::uint32_t rgba) { m_rgba = rgba; }
-    void setWidth(float w) { m_width = w; }
-    void setSpacing(float s) { m_spacing = s; }
-
 private:
-    std::uint32_t m_rgba;
-    float m_width;
-    float m_spacing = 0.25f;
-    bool m_drawing = false;
-    std::vector<std::pair<float, float>> m_lastPositions;  // Last positions for each mirrored stroke
-    int m_mirrorCount = 1;  // Number of mirrored strokes
+    bool m_moving = false;
+    float m_lastX = 0.0f;
+    float m_lastY = 0.0f;
+    float m_totalDx = 0.0f;
+    float m_totalDy = 0.0f;
+    std::vector<std::size_t> m_affectedStrokeIndices;
 };
 
 } // namespace spriteai::core::tools::builtin

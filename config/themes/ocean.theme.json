@@ -1,0 +1,32 @@
+{
+  "name": "Deep Ocean",
+  "version": 3,
+  "colors": {
+    "background": "#0f111a",
+    "canvas": "#1a1c2c",
+    "gridMajor": "#3d4261",
+    "gridMinor": "#292d45",
+    "stroke": "#a6accd",
+    "guide": "#82aaff",
+    "symmetry": "#c792ea"
+  },
+  "ui": {
+    "background": "#0f111a",
+    "surface": "#1a1c2c",
+    "surfaceHover": "#292d45",
+    "primary": "#82aaff",
+    "primaryHover": "#6b8fd4",
+    "secondary": "#c792ea",
+    "text": "#a6accd",
+    "textSecondary": "#717cb4",
+    "textDisabled": "#464b5d",
+    "border": "#292d45",
+    "success": "#c3e88d",
+    "warning": "#ffcb6b",
+    "error": "#ff5370",
+    "radius": 8,
+    "spacing": 8,
+    "font": "Segoe UI",
+    "fontSize": 10
+  }
+}

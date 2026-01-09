@@ -4,6 +4,8 @@
 #include "spriteai/core/command/CommandStack.h"
 #include "spriteai/core/tools/ToolRegistry.h"
 #include "spriteai/core/tools/Tool.h"
+#include "spriteai/core/tools/ToolContext.h"
+#include "spriteai/core/selection/Selection.h"
 #include "spriteai/engine/ai/IAIClient.h"
 
 namespace spriteai::engine {
@@ -14,6 +16,8 @@ struct EngineContext::Impl {
     core::document::SpriteDocument doc;
     core::command::CommandStack    cmd;
     core::tools::ToolRegistry      registry;
+    core::tools::ToolContext       toolContext;
+    core::selection::Selection     selection;
 
     std::unique_ptr<core::tools::Tool> activeTool;
 
@@ -28,9 +32,9 @@ struct EngineContext::Impl {
 EngineContext::EngineContext()
     : m(std::make_unique<Impl>())
 {
-    // fallback theme (beyaz canvas istiyorsan burada default ver)
-    // Eğer theme.json gelmezse bile canvas beyaz olsun:
     m->theme.canvas = ColorRGBA8{255,255,255,255};
+    m->toolContext.setSelection(&m->selection);
+    m->toolContext.setSymmetry(&m->symmetry);
 }
 
 EngineContext::~EngineContext() = default;
@@ -44,12 +48,21 @@ void EngineContext::redo() { m->cmd.redo(m->doc); }
 core::tools::ToolRegistry& EngineContext::toolRegistry() { return m->registry; }
 
 void EngineContext::setActiveTool(std::unique_ptr<core::tools::Tool> tool) {
+    if (tool) {
+        tool->setToolContext(&m->toolContext);
+    }
     m->activeTool = std::move(tool);
 }
 
 core::tools::Tool* EngineContext::activeTool() const {
     return m->activeTool.get();
 }
+
+core::tools::ToolContext& EngineContext::toolContext() { return m->toolContext; }
+const core::tools::ToolContext& EngineContext::toolContext() const { return m->toolContext; }
+
+core::selection::Selection& EngineContext::selection() { return m->selection; }
+const core::selection::Selection& EngineContext::selection() const { return m->selection; }
 
 static ToolInput makeInput(float x, float y, float pressure,
                            bool alt, bool shift, bool down)

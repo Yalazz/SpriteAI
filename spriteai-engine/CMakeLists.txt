@@ -18,6 +18,11 @@ add_library(spriteai_engine STATIC
         src/core/tools/PluginLoader.cpp
         src/core/tools/builtin/BrushTool.cpp
         src/core/tools/builtin/AITool.cpp
+        src/core/tools/builtin/PencilTool.cpp
+        src/core/tools/builtin/FillTool.cpp
+        src/core/tools/builtin/EyedropperTool.cpp
+        src/core/tools/builtin/SelectTool.cpp
+        src/core/tools/builtin/MoveTool.cpp
 
         src/engine/EngineContext.cpp
         src/engine/renderer/cpu/CpuCanvasRenderer.cpp

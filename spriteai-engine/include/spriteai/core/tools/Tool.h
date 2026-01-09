@@ -3,6 +3,7 @@
 
 namespace spriteai::core::document { class SpriteDocument; }
 namespace spriteai::core::command { class CommandStack; }
+namespace spriteai::core::tools { class ToolContext; }
 
 namespace spriteai::core::tools {
 
@@ -33,6 +34,12 @@ public:
     virtual void onPointerUp(spriteai::core::document::SpriteDocument&,
                              spriteai::core::command::CommandStack&,
                              const ToolInput&) = 0;
+
+    virtual void setToolContext(ToolContext* ctx) { m_toolContext = ctx; }
+    ToolContext* toolContext() const { return m_toolContext; }
+
+protected:
+    ToolContext* m_toolContext = nullptr;
 };
 
 } // namespace spriteai::core::tools

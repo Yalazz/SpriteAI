@@ -6,7 +6,15 @@
 #include "spriteai/canvas/CanvasView.h"
 #include "spriteai/engine/renderer/cpu/CpuCanvasRenderer.h"
 #include "spriteai/core/tools/Tool.h"
+#include "spriteai/core/tools/ToolContext.h"
 #include "spriteai/core/tools/builtin/AITool.h"
+#include "spriteai/core/tools/builtin/BrushTool.h"
+#include "spriteai/core/tools/builtin/PencilTool.h"
+#include "spriteai/core/tools/builtin/FillTool.h"
+#include "spriteai/core/selection/Selection.h"
+#include "spriteai/core/document/SpriteDocument.h"
+#include "spriteai/core/document/Stroke.h"
+#include "spriteai/core/document/Layer.h"
 
 #include <QPainter>
 #include <QMouseEvent>
@@ -14,6 +22,7 @@
 #include <QKeyEvent>
 #include <QDir>
 #include <algorithm>
+#include <optional>
 
 namespace spriteai::editor::app {
 
@@ -58,6 +67,45 @@ CanvasWidget::CanvasWidget(QWidget* parent)
         }
         update();
     });
+
+    setupPixelSampler();
+}
+
+void CanvasWidget::setupPixelSampler()
+{
+    spriteai::core::tools::PixelSampler sampler;
+
+    sampler.sampleAt = [this](float worldX, float worldY) -> std::optional<std::uint32_t> {
+        if (!m_renderer || !m_view) return std::nullopt;
+
+        float screenX, screenY;
+        m_view->worldToScreen(worldX, worldY, screenX, screenY);
+
+        int x = static_cast<int>(screenX);
+        int y = static_cast<int>(screenY);
+
+        if (x < 0 || x >= m_renderer->width() ||
+            y < 0 || y >= m_renderer->height()) {
+            return std::nullopt;
+        }
+
+        const auto* buf = m_renderer->rgba8Buffer();
+        if (!buf) return std::nullopt;
+
+        return buf[static_cast<size_t>(y) * static_cast<size_t>(m_renderer->width()) +
+                   static_cast<size_t>(x)];
+    };
+
+    sampler.bufferWidth = width();
+    sampler.bufferHeight = height();
+
+    m_engine->toolContext().setPixelSampler(sampler);
+
+    m_engine->toolContext().setColorCallback({
+        [this](std::uint32_t rgba) {
+            emit colorPicked(rgba);
+        }
+    });
 }
 
 CanvasWidget::~CanvasWidget() = default;
@@ -74,6 +122,17 @@ void CanvasWidget::setTool(const QString& toolId)
     if (tool) {
         if (auto* aiTool = dynamic_cast<spriteai::core::tools::builtin::AITool*>(tool.get())) {
             aiTool->setAIClient(m_engine->aiClient());
+        }
+        // Apply current foreground color to color-based tools
+        std::uint32_t fgColor = m_engine->toolContext().foregroundColor();
+        if (auto* brush = dynamic_cast<spriteai::core::tools::builtin::BrushTool*>(tool.get())) {
+            brush->setColor(fgColor);
+        }
+        if (auto* pencil = dynamic_cast<spriteai::core::tools::builtin::PencilTool*>(tool.get())) {
+            pencil->setColor(fgColor);
+        }
+        if (auto* fill = dynamic_cast<spriteai::core::tools::builtin::FillTool*>(tool.get())) {
+            fill->setColor(fgColor);
         }
         m_engine->setActiveTool(std::move(tool));
         emit toolChanged(toolId);
@@ -275,6 +334,17 @@ void CanvasWidget::keyPressEvent(QKeyEvent* e) {
                         tool.get())) {
                 aiTool->setAIClient(m_engine->aiClient());
             }
+            // Apply current foreground color to color-based tools
+            std::uint32_t fgColor = m_engine->toolContext().foregroundColor();
+            if (auto* brush = dynamic_cast<spriteai::core::tools::builtin::BrushTool*>(tool.get())) {
+                brush->setColor(fgColor);
+            }
+            if (auto* pencil = dynamic_cast<spriteai::core::tools::builtin::PencilTool*>(tool.get())) {
+                pencil->setColor(fgColor);
+            }
+            if (auto* fill = dynamic_cast<spriteai::core::tools::builtin::FillTool*>(tool.get())) {
+                fill->setColor(fgColor);
+            }
             m_engine->setActiveTool(std::move(tool));
             update();
             return;
@@ -282,6 +352,398 @@ void CanvasWidget::keyPressEvent(QKeyEvent* e) {
     }
 
     QWidget::keyPressEvent(e);
+}
+
+// ------------------------------------------------------------
+// Color Operations
+// ------------------------------------------------------------
+
+void CanvasWidget::setForegroundColor(const QColor& color)
+{
+    if (!m_engine) return;
+
+    std::uint32_t rgba = (static_cast<std::uint32_t>(color.alpha()) << 24) |
+                         (static_cast<std::uint32_t>(color.red()) << 16) |
+                         (static_cast<std::uint32_t>(color.green()) << 8) |
+                         static_cast<std::uint32_t>(color.blue());
+
+    m_engine->toolContext().setForegroundColor(rgba);
+
+    if (auto* tool = m_engine->activeTool()) {
+        if (auto* brush = dynamic_cast<spriteai::core::tools::builtin::BrushTool*>(tool)) {
+            brush->setColor(rgba);
+        }
+        if (auto* pencil = dynamic_cast<spriteai::core::tools::builtin::PencilTool*>(tool)) {
+            pencil->setColor(rgba);
+        }
+        if (auto* fill = dynamic_cast<spriteai::core::tools::builtin::FillTool*>(tool)) {
+            fill->setColor(rgba);
+        }
+    }
+}
+
+void CanvasWidget::setBackgroundColor(const QColor& color)
+{
+    if (!m_engine) return;
+
+    std::uint32_t rgba = (static_cast<std::uint32_t>(color.alpha()) << 24) |
+                         (static_cast<std::uint32_t>(color.red()) << 16) |
+                         (static_cast<std::uint32_t>(color.green()) << 8) |
+                         static_cast<std::uint32_t>(color.blue());
+
+    m_engine->toolContext().setBackgroundColor(rgba);
+}
+
+// ------------------------------------------------------------
+// Brush Settings
+// ------------------------------------------------------------
+
+void CanvasWidget::setBrushSize(int size)
+{
+    if (!m_engine) return;
+
+    if (auto* tool = m_engine->activeTool()) {
+        if (auto* brush = dynamic_cast<spriteai::core::tools::builtin::BrushTool*>(tool)) {
+            brush->setWidth(static_cast<float>(size));
+        }
+    }
+}
+
+void CanvasWidget::setBrushOpacity(int opacity)
+{
+    if (!m_engine) return;
+
+    std::uint32_t fgColor = m_engine->toolContext().foregroundColor();
+    std::uint32_t newAlpha = static_cast<std::uint32_t>((opacity * 255) / 100);
+    fgColor = (newAlpha << 24) | (fgColor & 0x00FFFFFF);
+    m_engine->toolContext().setForegroundColor(fgColor);
+
+    if (auto* tool = m_engine->activeTool()) {
+        if (auto* brush = dynamic_cast<spriteai::core::tools::builtin::BrushTool*>(tool)) {
+            brush->setColor(fgColor);
+        }
+    }
+}
+
+void CanvasWidget::setBrushSpacing(int spacing)
+{
+    if (!m_engine) return;
+
+    if (auto* tool = m_engine->activeTool()) {
+        if (auto* brush = dynamic_cast<spriteai::core::tools::builtin::BrushTool*>(tool)) {
+            brush->setSpacing(static_cast<float>(spacing) / 100.0f);
+        }
+    }
+}
+
+// ------------------------------------------------------------
+// Grid and Overlays
+// ------------------------------------------------------------
+
+void CanvasWidget::setGridEnabled(bool enabled)
+{
+    if (!m_engine) return;
+    m_engine->grid().enabled = enabled;
+    update();
+}
+
+void CanvasWidget::setSymmetryEnabled(bool enabled)
+{
+    if (!m_engine) return;
+    m_engine->symmetry().enabled = enabled;
+    m_engine->symmetry().drawAxisLine = enabled;
+    update();
+}
+
+// ------------------------------------------------------------
+// Edit Operations
+// ------------------------------------------------------------
+
+void CanvasWidget::selectAll()
+{
+    if (!m_engine) return;
+
+    float minX = 0, minY = 0, maxX = 0, maxY = 0;
+    bool first = true;
+
+    for (const auto& stroke : m_engine->document().strokes()) {
+        for (const auto& pt : stroke.points) {
+            if (first) {
+                minX = maxX = pt.x;
+                minY = maxY = pt.y;
+                first = false;
+            } else {
+                minX = std::min(minX, pt.x);
+                maxX = std::max(maxX, pt.x);
+                minY = std::min(minY, pt.y);
+                maxY = std::max(maxY, pt.y);
+            }
+        }
+    }
+
+    if (!first) {
+        spriteai::core::selection::Rect rect{minX - 1, minY - 1, maxX - minX + 2, maxY - minY + 2};
+        m_engine->selection().setRect(rect);
+    }
+    update();
+}
+
+void CanvasWidget::deselectAll()
+{
+    if (!m_engine) return;
+    m_engine->selection().clear();
+    update();
+}
+
+void CanvasWidget::deleteSelection()
+{
+    if (!m_engine) return;
+    if (!m_engine->selection().hasSelection()) return;
+
+    auto& strokes = m_engine->document().mutableStrokes();
+    const auto& sel = m_engine->selection();
+
+    strokes.erase(
+        std::remove_if(strokes.begin(), strokes.end(),
+            [&sel](const spriteai::core::document::Stroke& s) {
+                for (const auto& pt : s.points) {
+                    if (sel.containsPoint(pt.x, pt.y)) {
+                        return true;
+                    }
+                }
+                return false;
+            }),
+        strokes.end()
+    );
+
+    m_engine->selection().clear();
+    update();
+}
+
+// ------------------------------------------------------------
+// Image Operations
+// ------------------------------------------------------------
+
+void CanvasWidget::flipHorizontal()
+{
+    if (!m_engine) return;
+
+    float minX = 0, maxX = 0;
+    bool first = true;
+
+    auto& strokes = m_engine->document().mutableStrokes();
+
+    for (const auto& stroke : strokes) {
+        for (const auto& pt : stroke.points) {
+            if (first) {
+                minX = maxX = pt.x;
+                first = false;
+            } else {
+                minX = std::min(minX, pt.x);
+                maxX = std::max(maxX, pt.x);
+            }
+        }
+    }
+
+    float centerX = (minX + maxX) / 2.0f;
+
+    for (auto& stroke : strokes) {
+        for (auto& pt : stroke.points) {
+            pt.x = 2.0f * centerX - pt.x;
+        }
+    }
+    update();
+}
+
+void CanvasWidget::flipVertical()
+{
+    if (!m_engine) return;
+
+    float minY = 0, maxY = 0;
+    bool first = true;
+
+    auto& strokes = m_engine->document().mutableStrokes();
+
+    for (const auto& stroke : strokes) {
+        for (const auto& pt : stroke.points) {
+            if (first) {
+                minY = maxY = pt.y;
+                first = false;
+            } else {
+                minY = std::min(minY, pt.y);
+                maxY = std::max(maxY, pt.y);
+            }
+        }
+    }
+
+    float centerY = (minY + maxY) / 2.0f;
+
+    for (auto& stroke : strokes) {
+        for (auto& pt : stroke.points) {
+            pt.y = 2.0f * centerY - pt.y;
+        }
+    }
+    update();
+}
+
+void CanvasWidget::rotate90CW()
+{
+    if (!m_engine) return;
+
+    float minX = 0, maxX = 0, minY = 0, maxY = 0;
+    bool first = true;
+
+    auto& strokes = m_engine->document().mutableStrokes();
+
+    for (const auto& stroke : strokes) {
+        for (const auto& pt : stroke.points) {
+            if (first) {
+                minX = maxX = pt.x;
+                minY = maxY = pt.y;
+                first = false;
+            } else {
+                minX = std::min(minX, pt.x);
+                maxX = std::max(maxX, pt.x);
+                minY = std::min(minY, pt.y);
+                maxY = std::max(maxY, pt.y);
+            }
+        }
+    }
+
+    float centerX = (minX + maxX) / 2.0f;
+    float centerY = (minY + maxY) / 2.0f;
+
+    for (auto& stroke : strokes) {
+        for (auto& pt : stroke.points) {
+            float dx = pt.x - centerX;
+            float dy = pt.y - centerY;
+            pt.x = centerX - dy;
+            pt.y = centerY + dx;
+        }
+    }
+    update();
+}
+
+void CanvasWidget::rotate90CCW()
+{
+    if (!m_engine) return;
+
+    float minX = 0, maxX = 0, minY = 0, maxY = 0;
+    bool first = true;
+
+    auto& strokes = m_engine->document().mutableStrokes();
+
+    for (const auto& stroke : strokes) {
+        for (const auto& pt : stroke.points) {
+            if (first) {
+                minX = maxX = pt.x;
+                minY = maxY = pt.y;
+                first = false;
+            } else {
+                minX = std::min(minX, pt.x);
+                maxX = std::max(maxX, pt.x);
+                minY = std::min(minY, pt.y);
+                maxY = std::max(maxY, pt.y);
+            }
+        }
+    }
+
+    float centerX = (minX + maxX) / 2.0f;
+    float centerY = (minY + maxY) / 2.0f;
+
+    for (auto& stroke : strokes) {
+        for (auto& pt : stroke.points) {
+            float dx = pt.x - centerX;
+            float dy = pt.y - centerY;
+            pt.x = centerX + dy;
+            pt.y = centerY - dx;
+        }
+    }
+    update();
+}
+
+void CanvasWidget::clearCanvas()
+{
+    if (!m_engine) return;
+    m_engine->document().clear();
+    m_engine->selection().clear();
+    update();
+}
+
+// ------------------------------------------------------------
+// Layer Operations
+// ------------------------------------------------------------
+
+int CanvasWidget::addLayer()
+{
+    if (!m_engine) return -1;
+    int index = m_engine->document().addLayer();
+    emit layerCountChanged(m_engine->document().layerCount());
+    emit activeLayerChanged(index);
+    update();
+    return index;
+}
+
+void CanvasWidget::deleteLayer(int index)
+{
+    if (!m_engine) return;
+    m_engine->document().deleteLayer(index);
+    emit layerCountChanged(m_engine->document().layerCount());
+    emit activeLayerChanged(m_engine->document().activeLayerIndex());
+    update();
+}
+
+void CanvasWidget::duplicateLayer(int index)
+{
+    if (!m_engine) return;
+    m_engine->document().duplicateLayer(index);
+    emit layerCountChanged(m_engine->document().layerCount());
+    emit activeLayerChanged(m_engine->document().activeLayerIndex());
+    update();
+}
+
+void CanvasWidget::moveLayer(int from, int to)
+{
+    if (!m_engine) return;
+    m_engine->document().moveLayer(from, to);
+    emit activeLayerChanged(m_engine->document().activeLayerIndex());
+    update();
+}
+
+void CanvasWidget::setActiveLayer(int index)
+{
+    if (!m_engine) return;
+    m_engine->document().setActiveLayer(index);
+    emit activeLayerChanged(index);
+    update();
+}
+
+void CanvasWidget::setLayerOpacity(int index, int opacity)
+{
+    if (!m_engine) return;
+    float opacityF = static_cast<float>(opacity) / 100.0f;
+    m_engine->document().setLayerOpacity(index, opacityF);
+    update();
+}
+
+void CanvasWidget::setLayerBlendMode(int index, const QString& mode)
+{
+    if (!m_engine) return;
+    auto blendMode = spriteai::core::document::stringToBlendMode(mode.toStdString());
+    m_engine->document().setLayerBlendMode(index, blendMode);
+    update();
+}
+
+int CanvasWidget::layerCount() const
+{
+    if (!m_engine) return 0;
+    return m_engine->document().layerCount();
+}
+
+int CanvasWidget::activeLayerIndex() const
+{
+    if (!m_engine) return 0;
+    return m_engine->document().activeLayerIndex();
 }
 
 } // namespace spriteai::editor::app

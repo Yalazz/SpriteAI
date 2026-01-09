@@ -1,8 +1,10 @@
 #pragma once
 
-#include <QObject>     // 🔥 KRİTİK
+#include <QObject>
 #include <QWidget>
+#include <QColor>
 #include <memory>
+#include <cstdint>
 
 // Forward declarations (UI layer only sees interfaces)
 namespace spriteai::engine { class EngineContext; }
@@ -34,9 +36,48 @@ namespace spriteai::editor::app {
         void setZoom(float zoom);
         float zoom() const;
 
+        // Color operations
+        void setForegroundColor(const QColor& color);
+        void setBackgroundColor(const QColor& color);
+
+        // Brush settings
+        void setBrushSize(int size);
+        void setBrushOpacity(int opacity);
+        void setBrushSpacing(int spacing);
+
+        // Grid and overlays
+        void setGridEnabled(bool enabled);
+        void setSymmetryEnabled(bool enabled);
+
+        // Edit operations
+        void selectAll();
+        void deselectAll();
+        void deleteSelection();
+
+        // Image operations
+        void flipHorizontal();
+        void flipVertical();
+        void rotate90CW();
+        void rotate90CCW();
+        void clearCanvas();
+
+        // Layer operations
+        int addLayer();
+        void deleteLayer(int index);
+        void duplicateLayer(int index);
+        void moveLayer(int from, int to);
+        void setActiveLayer(int index);
+        void setLayerOpacity(int index, int opacity);
+        void setLayerBlendMode(int index, const QString& mode);
+        int layerCount() const;
+        int activeLayerIndex() const;
+
     signals:
         void toolChanged(const QString& toolId);
         void zoomChanged(float zoom);
+        void colorPicked(std::uint32_t rgba);
+        void layerCountChanged(int count);
+        void activeLayerChanged(int index);
 
     protected:
         void paintEvent(QPaintEvent*) override;
@@ -55,6 +96,7 @@ namespace spriteai::editor::app {
         bool m_updateScheduled = false;
         void sendPointer(bool down, QMouseEvent* e);
         void scheduleUpdate();
+        void setupPixelSampler();
     };
 
 } // namespace spriteai::editor::app

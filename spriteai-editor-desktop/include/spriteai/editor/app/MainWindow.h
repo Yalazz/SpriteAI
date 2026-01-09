@@ -48,8 +48,20 @@ private slots:
     void onToggleGrid(bool checked);
     void onToggleSymmetry(bool checked);
 
+    // Edit actions (additional)
+    void onSelectAll();
+    void onDeselectAll();
+    void onDelete();
+
+    // Image actions
+    void onFlipHorizontal();
+    void onFlipVertical();
+    void onRotate90CW();
+    void onRotate90CCW();
+
     // Tool actions
     void onToolBrush();
+    void onToolPencil();
     void onToolEraser();
     void onToolAI();
     void onToolEyedropper();

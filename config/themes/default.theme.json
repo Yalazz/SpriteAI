@@ -1,6 +1,6 @@
 {
   "name": "Neo Futuristic Dark",
-  "version": 2,
+  "version": 3,
   "colors": {
     "background": "#0A0E13",
     "canvas": "#111A26",
@@ -11,8 +11,22 @@
     "symmetry": "#FF6EC7"
   },
   "ui": {
-    "radius": 14,
-    "spacing": 10,
-    "font": "Inter"
+    "background": "#1a1a2e",
+    "surface": "#16213e",
+    "surfaceHover": "#0f3460",
+    "primary": "#e94560",
+    "primaryHover": "#c83250",
+    "secondary": "#4ecdc4",
+    "text": "#e8e8e8",
+    "textSecondary": "#a0a0b4",
+    "textDisabled": "#646478",
+    "border": "#0f3460",
+    "success": "#2ecc71",
+    "warning": "#f1c40f",
+    "error": "#e74c3c",
+    "radius": 8,
+    "spacing": 8,
+    "font": "Segoe UI",
+    "fontSize": 10
   }
 }
