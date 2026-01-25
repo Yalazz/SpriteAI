@@ -2,26 +2,109 @@
   "version": 3,
   "configurePresets": [
     {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "base-macos",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{HOME}/Qt/6.10.0/macos"
+      }
+    },
+    {
+      "name": "base-windows",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{USERPROFILE}/Qt/6.8.0/msvc2022_64"
+      }
+    },
+    {
+      "name": "base-linux",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{HOME}/Qt/6.8.0/gcc_64"
+      }
+    },
+    {
       "name": "debug",
       "displayName": "Debug",
-      "description": "Debug build with Qt",
-      "generator": "Ninja",
+      "description": "Debug build → outputs to debug/",
+      "inherits": ["base-macos", "base-windows", "base-linux"],
       "binaryDir": "${sourceDir}/cmake-build-debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_PREFIX_PATH": "/Users/emrebilici/Qt/6.10.0/macos"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
       "name": "release",
       "displayName": "Release",
-      "description": "Release build with Qt",
-      "generator": "Ninja",
+      "description": "Standalone release → outputs to release/",
+      "inherits": ["base-macos", "base-windows", "base-linux"],
       "binaryDir": "${sourceDir}/cmake-build-release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_PREFIX_PATH": "/Users/emrebilici/Qt/6.10.0/macos"
+        "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "Release with Debug Info",
+      "description": "Release with debug symbols → outputs to release/",
+      "inherits": ["base-macos", "base-windows", "base-linux"],
+      "binaryDir": "${sourceDir}/cmake-build-relwithdebinfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "minsizerel",
+      "displayName": "Minimum Size Release",
+      "description": "Size-optimized release → outputs to release/",
+      "inherits": ["base-macos", "base-windows", "base-linux"],
+      "binaryDir": "${sourceDir}/cmake-build-minsizerel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "relwithdebinfo",
+      "configurePreset": "relwithdebinfo"
+    },
+    {
+      "name": "minsizerel",
+      "configurePreset": "minsizerel"
     }
   ]
 }

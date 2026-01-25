@@ -17,6 +17,8 @@ CMakeCache.txt
 *.pro.user
 *.qbs.user
 *.qmlproject.user
+CMakeUserPresets.json
+.cmake-options
 
 # Java / Maven
 target/
