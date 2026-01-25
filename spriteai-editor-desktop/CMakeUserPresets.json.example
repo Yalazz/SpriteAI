@@ -1,0 +1,20 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "user-config",
+      "hidden": true,
+      "environment": {
+        "QT_DIR": "/path/to/your/Qt/6.x.x/platform"
+      }
+    },
+    {
+      "name": "debug-macos",
+      "inherits": ["user-config", "debug-macos"]
+    },
+    {
+      "name": "release-macos",
+      "inherits": ["user-config", "release-macos"]
+    }
+  ]
+}
